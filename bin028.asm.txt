@@ -1,0 +1,67 @@
+﻿
+;programme ::ASSEMBLY LANGUAGE PROGRAMME TO SEARCH A KEY ELEMENTM IN A
+;            LIST OF 'n' NUMBER USING THE BINARY SEARCH ALGORITHM
+.model small
+;MACRO TO DISPLAY THE MESSAGE....
+display1 macro msg
+         lea dx,msg
+         mov ah,09h
+         int 21h
+endm
+.data
+list db 0h,3h,4h,5h,7h,8h
+number equ($-list)
+key db 4h
+msg1 db 0dh,0ah,"Element found in the list...$"
+msg2 db 0dh,0ah,"Search failed !! Element not found...$"
+.code
+START:mov ax,@data
+      mov ds,ax       
+      mov ch,number-1 ;HIGH VALUE....
+      mov cl,00h      ;LOW VALUE...
+
+AGAIN:mov si,offset list
+      xor ax,ax
+      cmp cl,ch
+      je NEXT
+      jnc FAILED
+
+NEXT :mov al,cl
+      add al,ch
+      shr al,01h      ;DIVIDE BY 2
+      mov bl,al
+      xor ah,ah
+      mov bp,ax       ;CLEAR AH
+      mov al,ds:[bp][si]
+      cmp al,key      ;COMPARE KEY AND A[i]
+      je Success      ;IF EQUAL,DISPLAY SUCCESS MESSAGE
+      jc INCLOW       ;
+      mov ch,bl       ;IF KEY<A[i] SHIFT LOW
+      dec ch
+      jmp AGAIN
+
+INCLOW:mov cl,bl
+       inc cl         ;IF KEY<A[i] SHIFT LOW
+       jmp again
+
+SUCCESS:mov al,key
+        add al,30h
+        mov dl,al
+        mov ah,02h
+        int 21h
+        DISPLAY1 msg1
+        jmp final
+FAILED:mov al,key
+       add al,30h
+       mov dl,al
+       mov ah,02h
+       int 21h
+       DISPLAY1 msg2  ;JOB OVER,TERMINATE...
+
+FINAL :mov ah,01h
+       int 21h
+       mov ah,4ch
+       int 21h
+END START
+
+
